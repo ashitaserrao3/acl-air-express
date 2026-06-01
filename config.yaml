@@ -4,52 +4,52 @@ credentials:
     ashita:
       #email: ashita@company.com
       name: Ashita Serrao
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$zB3/StzsQg.b8uMZqFp9uOpCblzkWnFBrSIOWDboG35qOnDkz2Ctu'
  
     arvin:
       #email: arvin@company.com
       name: Arvin Shetty
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$fJ3MLe83/4PJjv66uZvOweEPXyQpvVVN6pp.wtZRnfJUixE81qGLq'
  
     apu:
       #email: apu@company.com
       name: Apu Halder
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$SbhJArr4r5e/.cqlyeej.OK.wfgi7SRdfRiRMuoVtH2PQeZ.IKA6a'
  
     srinivas:
       #email: srinivas@company.com
       name: Chityala Srinivas
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$8BfLIn7QdKvLAzQXXidjdudty6pgXmC.s9W13j7SAao9GqCwI.Vwa'
  
     devendra:
       #email: devendra@company.com
       name: Devendra Ramola
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$CtkzZ4vOa3mX7f3T7.tEXOcI.jhoJ1YxjXAcLBD5rqQj3ORnce7Re'
  
     pramod:
       #email: pramod@company.com
       name: Pramod Wankhade
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$0bOrOvdHRnhdsqYlt8W/NOpzXn2bCQ8VY7FwQJqrJ4jm09qyRlny2'
  
     chandrasekar:
       #email: chandrasekar@company.com
       name: S Chandrasekar
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$A2c45Hiyyc3L5AWdHUgGwOYOkBLJpaBzQpRgAlXGtBZwMXu9RvzVm'
  
     sanjay:
       #email: sanjay@company.com
       name: Sanjay Raju
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$Bj2qGmbkXn3hK/SXYwUyH.XFdFovyhqHblPiXQr6eD4mO87yTEVBa'
  
     dinesh:
      # email: dinesh@company.com
       name: Dinesh Adkhale
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$3BZO/1ZDlH4fnAz6.8ZZi.DqtXtcFbomTpKgxe.SoiPNWLvhE0RBy'
  
     shailendra:
       # email: shailendra@company.com
       name: Shailendra Shukla
-      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+      password: '$2b$12$BjtmAkKKcrObqLBiHI.yBeSMSa9h9AUSGVb7OpwwHAFPEU0poLsoC'
  
 cookie:
   expiry_days: 30
