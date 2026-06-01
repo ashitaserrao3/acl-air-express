@@ -1,0 +1,58 @@
+credentials:
+  usernames:
+ 
+    ashita:
+      #email: ashita@company.com
+      name: Ashita Serrao
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    arvin:
+      #email: arvin@company.com
+      name: Arvin Shetty
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    apu:
+      #email: apu@company.com
+      name: Apu Halder
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    srinivas:
+      #email: srinivas@company.com
+      name: Chityala Srinivas
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    devendra:
+      #email: devendra@company.com
+      name: Devendra Ramola
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    pramod:
+      #email: pramod@company.com
+      name: Pramod Wankhade
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    chandrasekar:
+      #email: chandrasekar@company.com
+      name: S Chandrasekar
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    sanjay:
+      #email: sanjay@company.com
+      name: Sanjay Raju
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    dinesh:
+     # email: dinesh@company.com
+      name: Dinesh Adkhale
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+    shailendra:
+      # email: shailendra@company.com
+      name: Shailendra Shukla
+      password: '$2b$12$Wx0HeWgXrMVf8JO.KtldAe.i4o22Vsv3QrurR4w6h586bzYy5sgOm'
+ 
+cookie:
+  expiry_days: 30
+  key: freight_platform_secret_key
+  name: freight_platform_cookie
+ 
