@@ -11,7 +11,7 @@ from utils.dashboard import show_dashboard
 
 
 def run():
-    st.title("📦 FDC Processor")
+    st.markdown("## 📦FDC Processor")
 
     # ------------------ EXTRACT INVOICE ------------------ #
     def extract_invoice_details(df_raw):

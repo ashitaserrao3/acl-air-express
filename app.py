@@ -23,7 +23,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("✈️ ACL Air Express")
+st.title("✈️ :red[_ACL Air Express_]", text_alignment="center")
  
 # =====================================================
 # LOAD CONFIG

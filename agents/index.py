@@ -69,7 +69,7 @@ def get_mode(row):
 # ---------------------------------------------------
 def run():
  
-    st.title("📦 INDEX Processor")
+    st.markdown("## 📦INDEX Processor")
  
     uploaded_files = st.file_uploader(
         "Upload INDEX Excel Files",

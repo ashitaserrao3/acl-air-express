@@ -10,7 +10,7 @@ from utils.dashboard import show_dashboard
  
 def run():
         
-            st.title("📦 PCFL East Processor")
+            st.markdown("## 📦PCFL East Processor")
         
             uploaded_files = st.file_uploader(
                 "Upload PCFL East Excel files",

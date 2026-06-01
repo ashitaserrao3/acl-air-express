@@ -14,7 +14,7 @@ def run():
         layout="wide"
     )
 
-    st.title("📦 PALM Processor")
+    st.markdown("## 📦PALM Processor")
 
     # ---------------------------------------------------
     # SLAB LOGIC

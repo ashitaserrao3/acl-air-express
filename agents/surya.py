@@ -10,7 +10,7 @@ from utils.dashboard import show_dashboard
  
 def run():
  
-    st.title("📦 SURYA Processor")
+    st.markdown("## 📦SURYA Processor")
  
     # =====================================================
     # FILE UPLOAD

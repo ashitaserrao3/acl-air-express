@@ -14,7 +14,7 @@ def run():
                     layout="wide"
                 )
                 
-                st.title("📦 PCF South Processor")
+                sst.markdown("## 📦PCF South Processor")
                 
                 # =================================================
                 # FILE UPLOADER

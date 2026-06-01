@@ -10,7 +10,7 @@ from utils.dashboard import show_dashboard
 
 def run():
 
-    st.title("📦BHAGWATI Processor")
+    st.markdown("## 📦BHAGWATI Processor")
 
     # ---------------- FUNCTIONS ---------------- #
 
