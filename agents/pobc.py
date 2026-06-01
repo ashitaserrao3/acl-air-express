@@ -235,11 +235,14 @@ def process_pobc(file):
                 inplace=True
             )
  
-            df = df.applymap(
-                lambda x:
-                x.strip()
-                if isinstance(x, str)
-                else x
+            # ---------------- CLEAN COLUMNS ----------------
+            df = df.apply(
+                lambda col: col.map(
+                    lambda x:
+                    x.strip()
+                    if isinstance(x, str)
+                    else x
+                )
             )
  
             # ---------------- DEST CLEAN ----------------
@@ -511,7 +514,7 @@ def compute_mode(row):
 # ---------------- MAIN ----------------
 def run():
  
-    st.title("📦 POBC Processor")
+    st.markdown("## 📦POBC Processor")
  
     uploaded_files = st.file_uploader(
         "Upload POBC Excel files",
