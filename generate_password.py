@@ -1,16 +1,14 @@
 import streamlit_authenticator as stauth
  
 passwords = [
-    "ashita@123",
-    "arvin@123",
-    "apu@123",
-    "srinivas@123",
-    "devendra@123",
-    "pramod@123",
-    "chandrasekar@123",
-    "sanjay@123",
-    "dinesh@123",
-    "shailendra@123"
+    "pradeep@123",
+    "krishna@123",
+    "shivpratap@123",
+    "manoj@123",
+    "ram@123",
+    "sujeet@123",
+    "vinod@123"
+
 ]
  
 for password in passwords:

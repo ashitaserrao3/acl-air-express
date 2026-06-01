@@ -50,7 +50,40 @@ credentials:
       # email: shailendra@company.com
       name: Shailendra Shukla
       password: '$2b$12$BjtmAkKKcrObqLBiHI.yBeSMSa9h9AUSGVb7OpwwHAFPEU0poLsoC'
+
+    shailendra:
+      # email: shailendra@company.com
+      name: Shailendra Shukla
+      password: '$2b$12$BjtmAkKKcrObqLBiHI.yBeSMSa9h9AUSGVb7OpwwHAFPEU0poLsoC'
+
+    pradeep:
+      name: Pradeep Kumar
+      password: '$2b$12$llaGAX6EcGYYjkkxTU033u9r9GOWtO9vBDaPeUIOuAUOpIiUCBQb2'
  
+    krishna:
+      name: Krishna Nand
+      password: '$2b$12$0Yuk/4Eri.z6VE1ZuwKLYe2UCj.Wp.TAWnLIG8X/r/UE.aX67DZEG'
+  
+    shivpratap:
+      name: Shiv Pratap Singh Rathore
+      password: '$2b$12$/pw5R6y/EaTjVRqDEfTNE.Xw.bIK7GM3eQX1dwdtLviHswCuLhzm.'
+  
+    manoj:
+      name: Manoj Deorao Vairagade
+      password: '$2b$12$xzAYllKjtpOCuHls2YAovuPc3bWv0inwE1CwBmIGb1Jta6c2iDxg2'
+  
+    ram:
+      name: Ram Bilash Yadav
+      password: '$2b$12$xsaie4J8cZaTeTAsTaM.r.R2iH5clILhwtkqlzgDre3QxaYqYHNF6'
+  
+    sujeet:
+      name: Sujeet Kumar
+      password: '$2b$12$MDYbUUWlr7JvfM4c3WrQ9OBgpUxjMHAmKF9xV8lQCivtXiZfITeci'
+  
+    vinod:
+      name: Vinod Mehra
+      password: '$2b$12$o6hSaFSLBGv1JMVcXyGkHOTXAXe7mQvQ6gHTm1Z7tguH5eKT8f9KK'
+  
 cookie:
   expiry_days: 30
   key: freight_platform_secret_key
