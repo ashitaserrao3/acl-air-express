@@ -191,13 +191,13 @@ def run():
                 )
 
                 # ---- COLUMN MAP ---- #
-                awb_col = find_col(df, ["CON.NO", "AWB"])
+                awb_col = find_col(df, ["CON.NO.", "AWB"])
                 date_col = find_col(df, ["DATE"])
                 dest_col = find_col(df, ["DEST"])
                 wt_col = find_col(df, ["WEIGHT", "WT"])
                 rate_col = find_col(df, ["RATE"])
                 qty_col = find_col(df, ["QTY"])
-                oda_col = find_col(df, ["ODA"])
+                oda_col = find_col(df, ["ODA CHARGES"])
 
                 if not awb_col:
                     st.warning(f"AWB column missing in {file.name}")

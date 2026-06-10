@@ -11,7 +11,9 @@ from agents import (
     surya,
     bhagwati,
     palm,
-    fdc
+    fdc,
+    eds,
+    multi_agent
 )
  
 # =====================================================
@@ -77,7 +79,9 @@ if st.session_state.get("authentication_status"):
             "SURYA",
             "BHAGWATI",
             "PALM",
-            "FDC"
+            "FDC",
+            "EDS",
+            "MULTI - AGENT"
         ]
     )
  
@@ -112,6 +116,14 @@ if st.session_state.get("authentication_status"):
     elif agent == "FDC":
  
         fdc.run()
+
+    elif agent == "EDS":
+ 
+        eds.run()
+    
+    elif agent == "MULTI - AGENT":
+ 
+        multi_agent.run()
  
 # =====================================================
 # LOGIN FAILED
