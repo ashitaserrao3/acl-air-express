@@ -58,6 +58,13 @@ def run():
         accept_multiple_files=True,
         key="multi_fdc"
     )
+
+    eds_files = st.file_uploader(
+        "📦 EDS Files",
+        type=["xlsx"],
+        accept_multiple_files=True,
+        key="multi_eds"
+    )
  
     if st.button("🚀 Process All"):
  
