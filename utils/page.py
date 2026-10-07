@@ -17,7 +17,7 @@ from utils.ui import chips, page_title
 from utils.common import get_airline
 from utils.excel_utils import formula_cells_without_values
 from utils.exporter import export_excel
-from utils.schema import split_issues, standardize
+from utils.schema import CANCELLED, is_cancelled, split_issues, standardize
 
 
 def files_signature(files):
@@ -33,6 +33,10 @@ BLANK_CHECK = {"AWB_DATE": "date", "DEST": "destination", "CHR_WT": "weight", "T
 
 def report_blanks(df, f, log, skip_sheet=None):
     """Tell the user exactly which cells came through empty, and why if we can tell."""
+    void = is_cancelled(df)
+    if void.any():
+        log("info", f"{f.name}: {int(void.sum())} cancelled (VOID) AWB(s) left out")
+    df = df[~void]
     gaps = []
     for col, label in BLANK_CHECK.items():
         if col in df.columns:
@@ -75,7 +79,7 @@ def process_agent_files(agent_module, files, log):
 
 def report_airlines(df, log):
     """Per file: how many airlines came from the AWB prefix, and which flight cells were not understood."""
-    air = df[df["TRNSPT_MODE"] != "ROAD"]
+    air = df[(df["TRNSPT_MODE"] != "ROAD") & (df["DATA_ISSUE"].fillna("") != CANCELLED)]
     for fname, part in air.groupby("SOURCE_FILE"):
         from_flight = part["FLIGHT_NO"].map(get_airline)
         via_awb = int((from_flight.isna() | (from_flight == "Other")).sum()
@@ -98,7 +102,7 @@ def show_problems(logs):
             st.warning(m, icon="⚠️")
 
 
-def quality_chips(df, logs, n_files=None, n_excluded=0):
+def quality_chips(df, logs, n_files=None, n_excluded=0, n_cancelled=0):
     removed = df.attrs.get("exact_dups_removed", 0)
     dup = int(df["DUP_FLAG"].notna().sum())
     errors = sum(1 for lvl, _ in logs if lvl == "error")
@@ -111,6 +115,8 @@ def quality_chips(df, logs, n_files=None, n_excluded=0):
         items.append((f"{removed} exact repeats removed", ""))
     if dup:
         items.append((f"{dup} repeated AWBs", "warn"))
+    if n_cancelled:
+        items.append((f"{n_cancelled} cancelled (VOID) left out", ""))
     if n_excluded:
         items.append((f"{n_excluded} rows left out (data issues)", "warn"))
     if errors:
@@ -162,6 +168,8 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
         hidden = len(df_all) - len(shown)
         st.caption(f"Showing **{month}** only – {hidden:,} AWB(s) from other months hidden.")
     df, excluded = split_issues(shown)
+    is_void = excluded["DATA_ISSUE"] == CANCELLED
+    voided, issues = excluded[is_void], excluded[~is_void]
 
     # Excel follows the month filter; each version is built once and kept
     tag = month or "all"
@@ -173,7 +181,7 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
 
     top_l, top_r = st.columns([3, 1], vertical_alignment="center")
     with top_l:
-        quality_chips(df, logs, n_files, n_excluded=len(excluded))
+        quality_chips(df, logs, n_files, n_excluded=len(issues), n_cancelled=len(voided))
     with top_r:
         st.download_button(
             "⬇  Download Excel",
@@ -188,8 +196,13 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
         )
     show_problems(logs)
     if len(excluded):
-        st.info(f"{len(excluded):,} row(s) with data issues were left out of the dashboard, data and totals – "
-                "see the **Issues** tab (also on the *Excluded_Issues* sheet in the Excel).", icon="ℹ️")
+        parts = []
+        if len(voided):
+            parts.append(f"{len(voided):,} cancelled (VOID) AWB(s)")
+        if len(issues):
+            parts.append(f"{len(issues):,} row(s) with data issues")
+        st.info(" and ".join(parts) + " were left out of the dashboard, data and totals – see the **Issues** tab "
+                "(also on the *Excluded_Issues* sheet in the Excel).", icon="ℹ️")
 
     dups = df[df["DUP_FLAG"].notna()]
     infos = [m for lvl, m in logs if lvl == "info"]
@@ -218,11 +231,15 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
     with t_issue:
         if excluded.empty and dups.empty:
             st.success("No repeated AWBs or data issues found.", icon="✅")
-        if len(excluded):
-            st.markdown(f"**Left out – data issues ({len(excluded):,})**")
+        if len(issues):
+            st.markdown(f"**Left out – data issues ({len(issues):,})**")
             st.caption("Something missing or not matching in the bill. These rows are not in the dashboard, "
                        "data or totals. Fix the bill and upload it again to include them.")
-            st.dataframe(excluded[ISSUE_COLS], width="stretch", hide_index=True, column_config=DATE_CFG)
+            st.dataframe(issues[ISSUE_COLS], width="stretch", hide_index=True, column_config=DATE_CFG)
+        if len(voided):
+            st.markdown(f"**Cancelled – VOID ({len(voided):,})**")
+            st.caption("The bill marks these AWBs as VOID (cancelled), so they are not counted anywhere.")
+            st.dataframe(voided[ISSUE_COLS], width="stretch", hide_index=True, column_config=DATE_CFG)
         if len(dups):
             st.markdown(f"**Repeated AWBs ({len(dups):,})**")
             st.caption("Same AWB on more than one row. These rows are kept in the totals.")
