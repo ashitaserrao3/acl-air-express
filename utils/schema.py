@@ -158,6 +158,12 @@ def flag_duplicates(df):
     return df
 
 
+def split_issues(df):
+    """(clean rows, rows with a DATA_ISSUE). Rows with an issue are left out of totals and charts."""
+    bad = df["DATA_ISSUE"].notna()
+    return df[~bad], df[bad]
+
+
 def combine(frames):
     """Stack several standardized agent outputs (Multi-Agent)."""
     frames = [f for f in frames if f is not None and not f.empty]
