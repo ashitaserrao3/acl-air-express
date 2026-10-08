@@ -242,11 +242,9 @@ def show_dashboard(df, key="dash", pdf_name="Dashboard.pdf", month=None):
                            {m: sd[sd["Measure"] == m]["Share"].tolist() for m in SHARE_COLORS},
                            {m: sd[sd["Measure"] == m]["Actual"].tolist() for m in SHARE_COLORS}))
 
-    # ---------------- AIRLINE × MODE ----------------
-    if not in_table.empty:
-        airline = in_table["AIRLINE"].astype("string")
-        road = in_table["TRNSPT_MODE"].astype(str).str.upper() == "ROAD"
-        airline = airline.mask(road, "Road").fillna("No airline")
+    # ---------------- AIRLINE × MODE (only when Transport mode = AIR) ----------------
+    if air_split and not in_table.empty:
+        airline = in_table["AIRLINE"].astype("string").fillna("No airline")
         section("Airline-wise" + split_title)
         by_frt = in_table.groupby(airline)["TOTAL_FRT"].sum().sort_values(ascending=False).index
         pivot("Airline-wise" + split_title, "Airline", [(a, in_table[airline == a]) for a in by_frt])
