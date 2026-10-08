@@ -95,7 +95,9 @@ def view_toggle(key, name, data, view_label, hide_label):
         st.session_state[f"{state_key}_sig"] = signature
         st.session_state[state_key] = False
     showing = st.session_state.get(state_key, False)
-    st.button(hide_label if showing else view_label, key=f"{state_key}_btn", on_click=_flip, args=(state_key,))
+    _, mid, _ = st.columns([2, 1, 2])  # button sits in the middle under the table
+    mid.button(hide_label if showing else view_label, key=f"{state_key}_btn", on_click=_flip, args=(state_key,),
+               width="stretch")
     return showing
 
 
