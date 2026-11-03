@@ -4,6 +4,8 @@ The two formats are identical except for which column holds the total
 (South = NET, East = GROSS), so the logic lives here once.
 """
 
+import re
+
 import pandas as pd
 
 from utils.common import digits_only, find_col, find_header_row, frame_from_header, strip_ext, to_date, to_num
@@ -36,6 +38,19 @@ COLUMN_MAP = {
 }
 
 
+_INVOICE = re.compile(r"INVOICE\s*NO\.?\s*[:\-]*\s*([A-Z]{3}\s*[/\-][^\s,]+)", re.I)
+
+
+def invoice_from_header(raw, header_row):
+    """'INVOICE NO.    : MAA/595/26-27' above the table -> 'MAA/595/26-27' (None if not there)."""
+    for r in range(header_row):
+        for v in raw.iloc[r].dropna():
+            m = _INVOICE.search(str(v))
+            if m:
+                return re.sub(r"\s+", "", m.group(1)).upper()
+    return None
+
+
 def extract_origin(invoice):
     first = str(invoice).split("-")[0].strip().upper()
     return first if "-" in str(invoice) and first.isalpha() else None
@@ -47,7 +62,12 @@ def compute_mode(df):
     return ((awbdo - 50).abs() < 0.01) & (others == 0)
 
 
-def parse_pcf(data, name, log, total_header):
+def parse_pcf(data, name, log, total_header, read_invoice_header=False):
+    """
+    read_invoice_header (PCF South): invoice no. and origin come from the bill's
+    'INVOICE NO. : MAA/595/26-27' line, so the file name does not matter; the file
+    name (MAA-PCF-0801.xlsx) is only the fallback. Off = file name only (PCFL East).
+    """
     raw, _, _ = read_raw_any(data, name)
     header_row = find_header_row(
         raw, lambda cells: any("AWB" in c for c in cells) and any("DATE" in c for c in cells)
@@ -90,7 +110,15 @@ def parse_pcf(data, name, log, total_header):
     out["AWB_DATE"] = to_date(out["AWB_DATE"])
     out["LODGE_MODE"] = compute_mode(out).map({True: "Console", False: "Direct"})
 
-    out["INVOICE_NO"] = strip_ext(name)
-    out["ORIGIN"] = extract_origin(out["INVOICE_NO"].iloc[0]) if len(out) else None
+    invoice = invoice_from_header(raw, header_row) if read_invoice_header else None
+    if invoice:
+        out["INVOICE_NO"] = invoice
+        out["ORIGIN"] = invoice[:3]
+    else:
+        out["INVOICE_NO"] = strip_ext(name)
+        out["ORIGIN"] = extract_origin(out["INVOICE_NO"].iloc[0]) if len(out) else None
+        if read_invoice_header and len(out) and out["ORIGIN"].isna().all():
+            log("warning", f"{name}: origin not found – no 'INVOICE NO. : MAA/…' line in the bill and the file "
+                           "name does not start with a city code (e.g. MAA-…). Rows are left out until it is known.")
     out["TRNSPT_MODE"] = "AIR"
     return out
