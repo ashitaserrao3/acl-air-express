@@ -1,11 +1,17 @@
-"""POBC bills (Excel, one sheet per station invoice)."""
+"""
+POBC bills (Excel). Two layouts are read the same way:
+  - combined bill: one sheet per station invoice (+ Bill Summary), with a Srv column (ACG = air, RDS = road)
+  - location-wise bill: one invoice per file, e.g. sheet "B7MAA-00045414", without a Srv column –
+    air or road is then worked out from the Route / Dest cells (see infer_mode)
+A file can hold both halves of a month; FFN / SFN is set per AWB from its date.
+"""
 
 from io import BytesIO
 
 import openpyxl
 import pandas as pd
 
-from utils.common import awb_text, find_header_row, frame_from_header, to_date, to_num
+from utils.common import awb_text, find_header_row, frame_from_header, get_airline, to_date, to_num
 from utils.excel_utils import sheet_to_raw, unmerge
 
 AGENT = "POBC"
@@ -42,6 +48,17 @@ def map_column(c):
         if key in c:
             return target
     return c
+
+
+def infer_mode(df):
+    """
+    No Srv column (location-wise bills): AIR when the route is a flight ('6E6079AMD', 'AI 805')
+    or the destination is booked as 'PAF-…' (Patel Air Freight); otherwise ROAD
+    (surface routes such as 'MAASLMS1' with 'POBC-…' destinations).
+    """
+    route_air = df["FLIGHT_NO"].map(lambda f: get_airline(f) not in (None, "Other")) if "FLIGHT_NO" in df else False
+    dest_air = df["DEST"].astype(str).str.upper().str.startswith("PAF-") if "DEST" in df else False
+    return pd.Series(route_air | dest_air, index=df.index).map({True: "AIR", False: "ROAD"})
 
 
 def compute_mode(row):
@@ -107,6 +124,15 @@ def parse_sheet(ws, log):
             log("info", f"sheet '{ws.title}': {carried} blank dates taken from the row above")
         df["AWB_DATE"] = dates
 
+    # air / road: from the Srv column when the bill has one, else from Route / Dest (before PAF- is cut off)
+    if "TRNSPT_MODE" in df.columns:
+        df["TRNSPT_MODE"] = df["TRNSPT_MODE"].astype(str).str.strip().str.upper().replace({"ACG": "AIR", "RDS": "ROAD"})
+    else:
+        df["TRNSPT_MODE"] = infer_mode(df)
+        counts = df["TRNSPT_MODE"].value_counts()
+        log("info", f"sheet '{ws.title}': no Srv column – transport mode taken from Route / Dest: "
+                    + ", ".join(f"{n} {m}" for m, n in counts.items()))
+
     if "DEST" in df.columns:
         df["DEST"] = df["DEST"].astype(str).str.replace(r"^(PAF-|POBC-)", "", regex=True).str.strip()
 
@@ -116,11 +142,6 @@ def parse_sheet(ws, log):
     for col in CHARGE_COLS + ["CHR_WT", "BASIC_FRT", "TOTAL_FRT"]:
         if col in df.columns:
             df[col] = to_num(df[col], fill=0)
-
-    if "TRNSPT_MODE" in df.columns:
-        df["TRNSPT_MODE"] = df["TRNSPT_MODE"].astype(str).str.strip().str.upper().replace({"ACG": "AIR", "RDS": "ROAD"})
-    else:
-        df["TRNSPT_MODE"] = "N/A"
 
     df["INVOICE_NO"] = ws.title
     return df
