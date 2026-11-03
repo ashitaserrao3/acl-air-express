@@ -61,6 +61,8 @@ def build():
         ], []),
     ])
 
+    pobc_location_wise()
+
     # ---------------- PCF South / PCFL East ----------------
     def pcf(total_name):
         hh = ["S.No", "AWB NO", "DATE", "DEST", "FLIGHT", "PKT", "WGT", "RATE", "BASIC", "AWBDO", "FSC", "OCDC",
@@ -121,6 +123,27 @@ def build():
         c.drawString(30, y, line)
         y -= 18
     c.save()
+
+
+def pobc_location_wise():
+    """POBC location-wise invoices: one sheet per file, no Srv column, FFN + SFN in one bill."""
+    head = [["Patel Integrated Logistics Ltd"], ["TAX INVOICE"], ["Waybill Details :"], []]
+    xlsx("POBC_loc_B7MAA-00000001.xlsx", [("B7MAA-00000001", head + [
+        ["No.", "Waybill", "Date", "Route", "Dest", "Pcs", "Bags", "Wt", "Rate", "FRT", "AWBC", "Revenue"],
+        [1, 115700001, datetime(2026, 8, 4), "6E6079AMD", "PAF-AMD", 0, 2, 25, 60, 1500, 50, 1550],
+        [2, 115700002, datetime(2026, 8, 20), "6E539PAT", "PAF-PAT", 0, 4, 60, 68, 4080, 50, 4130],
+        ["Total", "Pcs", "Bags", "Wt", "FRT", "AWBC", "Revenue"],
+        [None, 0, 6, 85, 5580, 100, 5680],
+        ["Bill Amount", ": 5680.00"],
+    ], [])])
+    xlsx("POBC_loc_B9MAA-00000002.xlsx", [("B9MAA-00000002", head + [
+        ["No.", "Waybill", "Date", "Route", "Dest", "Pcs", "Bags", "Wt", "Rate", "FRT", "Revenue"],
+        [1, 115700011, datetime(2026, 8, 5), "MAASLMS1", "POBC-IXM", 0, 9, 136, 13, 1768, 1768],
+        [2, 115700012, datetime(2026, 8, 18), "MAASLMS1", "POBC-CJB", 0, 3, 52, 13, 676, 676],
+        ["Total", "Pcs", "Bags", "Wt", "FRT", "Revenue"],
+        [None, 0, 12, 188, 2444, 2444],
+        ["Bill Amount", ": 2444.00"],
+    ], [])])
 
 
 if __name__ == "__main__":
