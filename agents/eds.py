@@ -8,7 +8,7 @@ import re
 
 import pandas as pd
 
-from utils.common import awb_text, find_col, find_header_row, frame_from_header, strip_ext, to_date, to_num
+from utils.common import awb_text, find_col, find_header_row, frame_from_header, get_airline, strip_ext, to_date, to_num
 from utils.excel_utils import read_raw_any
 
 AGENT = "EDS"
@@ -72,6 +72,9 @@ def parse(data, name, log):
     df = frame_from_header(raw, header_row)
 
     awb_col = find_col(df, ["AWB NO.", "AWB NO"], allow_partial=False)
+    # 'Airline : AKASA AIR (NET RATE)' heading rows: the airline of every AWB below them
+    first = df.iloc[:, 0].astype("string")
+    section = first.where(first.str.contains(r"^\s*Airline\s*:", case=False, na=False)).ffill()
     df = df[df[awb_col].notna()]
     df = df[~df[awb_col].astype(str).str.contains("Airline|Total", case=False, na=False)]
 
@@ -95,6 +98,16 @@ def parse(data, name, log):
     out["ADDON_CHR"] = out[ADDON_PARTS].sum(axis=1)
     out["TOTAL_FRT"] = out["BASIC_FRT"] + out["ADDON_CHR"]
     out["AWB_DATE"] = to_date(out["AWB_DATE"], dayfirst=True)
+
+    # flight cell empty / unclear -> airline from the section heading the AWB sits under
+    unknown = out["FLIGHT_NO"].map(lambda f: get_airline(f) in (None, "Other"))
+    from_section = section.reindex(out.index)[unknown].map(lambda t: get_airline(t) if isinstance(t, str) else None)
+    from_section = from_section[from_section.notna() & (from_section != "Other")]
+    if len(from_section):
+        out["AIRLINE"] = pd.Series(pd.NA, index=out.index, dtype="object")
+        out.loc[from_section.index, "AIRLINE"] = from_section
+        log("info", f"{name}: flight cell empty/unclear for {len(from_section)} row(s) – airline taken "
+                    "from the 'Airline :' section heading")
 
     invoice = invoice_from_sheet(raw, header_row)
     if invoice:

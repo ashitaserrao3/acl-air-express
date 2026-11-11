@@ -1,4 +1,7 @@
-"""PCF South bills (Excel). Total = NET column. Invoice no. / origin from the bill's INVOICE NO. line."""
+"""
+PCF South bills (Excel). Total = NET column (GROSS when the bill has no discount, so no NET column).
+Invoice no. / origin from the bill's INVOICE NO. line.
+"""
 
 from agents.pcf_common import EXTRA_COLS, parse_pcf
 
@@ -12,4 +15,4 @@ EXTRA_COLS = EXTRA_COLS
 
 
 def parse(data, name, log):
-    return parse_pcf(data, name, log, total_header="NET", read_invoice_header=True)
+    return parse_pcf(data, name, log, total_header="NET", read_invoice_header=True, total_fallback="GROSS")
