@@ -62,8 +62,10 @@ def compute_mode(df):
     return ((awbdo - 50).abs() < 0.01) & (others == 0)
 
 
-def parse_pcf(data, name, log, total_header, read_invoice_header=False):
+def parse_pcf(data, name, log, total_header, read_invoice_header=False, total_fallback=None):
     """
+    total_fallback (PCF South): bills with no discount have no Dis% / Disc. / Net columns, only
+    Gross – then Net = Gross, so the total is taken from that column instead.
     read_invoice_header (PCF South): invoice no. and origin come from the bill's
     'INVOICE NO. : MAA/595/26-27' line, so the file name does not matter; the file
     name (MAA-PCF-0801.xlsx) is only the fallback. Off = file name only (PCFL East).
@@ -86,6 +88,11 @@ def parse_pcf(data, name, log, total_header, read_invoice_header=False):
         raise ValueError("could not tell AWB No column apart from AWBDO")
 
     total_src = find_col(df, [total_header], True)
+    if total_src is None and total_fallback:
+        total_src = find_col(df, [total_fallback], True)
+        if total_src is not None:
+            log("info", f"{name}: no {total_header.title()} column (no discount on this bill) – "
+                        f"total taken from {total_fallback.title()}")
     if total_src is None:
         raise ValueError(f"total column '{total_header}' not found")
     out["TOTAL_FRT"] = df[total_src]
