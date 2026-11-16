@@ -79,7 +79,9 @@ def process_agent_files(agent_module, files, log):
 
 def report_airlines(df, log):
     """Per file: how many airlines came from the AWB prefix, and which flight cells were not understood."""
-    air = df[(df["TRNSPT_MODE"] != "ROAD") & (df["DATA_ISSUE"].fillna("") != CANCELLED)]
+    # rows whose bill has no flight at all (PALM: "Not on bill") have nothing to report
+    air = df[(df["TRNSPT_MODE"] != "ROAD") & (df["DATA_ISSUE"].fillna("") != CANCELLED)
+             & (df["AIRLINE"].fillna("") != "Not on bill")]
     for fname, part in air.groupby("SOURCE_FILE"):
         from_flight = part["FLIGHT_NO"].map(get_airline)
         via_awb = int((from_flight.isna() | (from_flight == "Other")).sum()

@@ -53,7 +53,7 @@ ADDON_CHR, ADDON_PER_KG, CPKG, SLAB, LODGE_MODE, DUP_FLAG, DATA_ISSUE, SOURCE_FI
 - **DUP_FLAG** – same AWB appears on more than one row (rows are kept). Exact repeats
   (same AWB + invoice + date + weight + total) are removed.
 - **DATA_ISSUE** – missing/invalid date (BILL_PERIOD left blank), missing weight,
-  weight "M", missing total, Basic+Other ≠ Total (SURYA), etc.
+  weight "M", missing total, Basic+Other ≠ Total (SURYA), Wt × Rate ≠ Total (PALM), etc.
 
 ## Adding a new agent
 Create `agents/<name>.py` with `AGENT, KEY, LABEL, FILE_TYPES, OUTPUT_FILE, EXTRA_COLS`
