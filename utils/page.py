@@ -104,7 +104,7 @@ def show_problems(logs):
             st.warning(m, icon="⚠️")
 
 
-def quality_chips(df, logs, n_files=None, n_excluded=0, n_cancelled=0):
+def quality_chips(df, logs, n_files=None, n_excluded=0, n_cancelled=0, n_included=0):
     removed = df.attrs.get("exact_dups_removed", 0)
     dup = int(df["DUP_FLAG"].notna().sum())
     errors = sum(1 for lvl, _ in logs if lvl == "error")
@@ -121,6 +121,8 @@ def quality_chips(df, logs, n_files=None, n_excluded=0, n_cancelled=0):
         items.append((f"{n_cancelled} cancelled (VOID) left out", ""))
     if n_excluded:
         items.append((f"{n_excluded} rows left out (data issues)", "warn"))
+    if n_included:
+        items.append((f"{n_included} issue row(s) included by you", "info"))
     if errors:
         items.append((f"{errors} file errors", "bad"))
     chips(items)
@@ -129,6 +131,31 @@ def quality_chips(df, logs, n_files=None, n_excluded=0, n_cancelled=0):
 ISSUE_COLS = ["AGENT", "INVOICE_NO", "AWB_NO", "AWB_DATE", "OD_PAIR", "CHR_WT", "TOTAL_FRT",
               "DUP_FLAG", "DATA_ISSUE", "SOURCE_FILE"]
 DATE_CFG = {"AWB_DATE": st.column_config.DateColumn(format="DD-MMM-YYYY")}
+
+
+def include_editor(rows, included, key, name):
+    """
+    Issue rows with an 'Include' tick box. Ticked rows go back into the dashboard,
+    data, totals and downloads. `included` (a set of row ids) is kept with this
+    upload's results, so a new upload starts with every issue row left out again.
+    """
+    version = st.session_state.get(f"{key}_inc_v", 0)
+    ed_key = f"{key}_inc_{name}_{version}"          # new key after each change -> table redrawn from `included`
+    ids = list(rows.index)
+
+    def apply():
+        for pos, change in st.session_state[ed_key]["edited_rows"].items():
+            if "Include" in change:
+                (included.add if change["Include"] else included.discard)(ids[pos])
+        st.session_state[f"{key}_inc_v"] = version + 1
+
+    table = rows[ISSUE_COLS].copy()
+    table.insert(0, "Include", [i in included for i in ids])
+    st.data_editor(
+        table, key=ed_key, on_change=apply, width="stretch", hide_index=True,
+        disabled=ISSUE_COLS, column_config={**DATE_CFG, "Include": st.column_config.CheckboxColumn(
+            "Include", help="Tick to count this row in the dashboard, data, totals and downloads anyway.")},
+    )
 
 
 NO_DATE = "No AWB date"
@@ -160,7 +187,8 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
     """
     Month filter + status chips + download, then tabs: Dashboard / Data / Issues / Log.
     Rows with a DATA_ISSUE are left out of the dashboard, data and totals; they are
-    listed in the Issues tab and on their own sheet in the Excel.
+    listed in the Issues tab and on their own sheet in the Excel. The user can tick
+    'Include' on any of them in the Issues tab to count it anyway.
     make_excel(clean_rows, excluded_rows) -> bytes
     """
     f_col, _ = st.columns([1, 2])
@@ -169,12 +197,22 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
     if month:
         hidden = len(df_all) - len(shown)
         st.caption(f"Showing **{month}** only – {hidden:,} AWB(s) from other months hidden.")
-    df, excluded = split_issues(shown)
-    is_void = excluded["DATA_ISSUE"] == CANCELLED
-    voided, issues = excluded[is_void], excluded[~is_void]
+    df, flagged = split_issues(shown)
+    is_void = flagged["DATA_ISSUE"] == CANCELLED
+    all_voided, all_issues = flagged[is_void], flagged[~is_void]
 
-    # Excel follows the month filter; each version is built once and kept
-    tag = month or "all"
+    # issue rows the user ticked 'Include' in the Issues tab go back into the totals
+    included = cache.setdefault("included", set())
+    chosen = flagged.index.isin(included)
+    if chosen.any():
+        attrs = df.attrs
+        df = pd.concat([df, flagged[chosen]]).sort_index()
+        df.attrs = attrs
+    excluded = flagged[~chosen]
+    voided, issues = excluded[excluded["DATA_ISSUE"] == CANCELLED], excluded[excluded["DATA_ISSUE"] != CANCELLED]
+
+    # Excel follows the month filter and the included rows; each version is built once and kept
+    tag = (month or "all") + "|" + ",".join(map(str, sorted(flagged.index[chosen])))
     xl = cache.setdefault("xlsx_by_month", {})
     if tag not in xl:
         with st.spinner("Preparing Excel…"):
@@ -183,7 +221,7 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
 
     top_l, top_r = st.columns([3, 1], vertical_alignment="center")
     with top_l:
-        quality_chips(df, logs, n_files, n_excluded=len(issues), n_cancelled=len(voided))
+        quality_chips(df, logs, n_files, n_excluded=len(issues), n_cancelled=len(voided), n_included=int(chosen.sum()))
     with top_r:
         st.download_button(
             "⬇  Download Excel",
@@ -197,20 +235,26 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
             args=("DOWNLOAD", out_name),
         )
     show_problems(logs)
+    # always draw this slot (even when empty) so the tabs below keep their place – otherwise ticking
+    # 'Include' on the last left-out row removes the note and the page jumps back to the Dashboard tab
+    note = st.empty()
     if len(excluded):
         parts = []
         if len(voided):
             parts.append(f"{len(voided):,} cancelled (VOID) AWB(s)")
         if len(issues):
             parts.append(f"{len(issues):,} row(s) with data issues")
-        st.info(" and ".join(parts) + " were left out of the dashboard, data and totals – see the **Issues** tab "
-                "(also on the *Excluded_Issues* sheet in the Excel).", icon="ℹ️")
+        note.info(" and ".join(parts) + " were left out of the dashboard, data and totals – see the **Issues** tab "
+                "(also on the *Excluded_Issues* sheet in the Excel). Tick **Include** there to count a row anyway.",
+                icon="ℹ️")
 
     dups = df[df["DUP_FLAG"].notna()]
     infos = [m for lvl, m in logs if lvl == "info"]
-    t_dash, t_data, t_issue, t_log = st.tabs(
-        ["📊  Dashboard", "📋  Data", f"⚠️  Issues ({len(excluded) + len(dups)})", "🧾  Processing log"]
-    )
+    labels = ["📊  Dashboard", "📋  Data", f"⚠️  Issues ({len(flagged) + len(dups)})", "🧾  Processing log"]
+    try:   # remembered tab, so ticking 'Include' keeps the Issues tab open (newer Streamlit only)
+        t_dash, t_data, t_issue, t_log = st.tabs(labels, key=f"{key}_tabs", on_change="rerun")
+    except TypeError:
+        t_dash, t_data, t_issue, t_log = st.tabs(labels)
 
     with t_dash:
         if df.empty:
@@ -231,17 +275,19 @@ def show_results(df_all, logs, key, file_name, make_excel, cache, n_files=None):
         st.dataframe(view, width="stretch", height=520, column_config=DATE_CFG)
 
     with t_issue:
-        if excluded.empty and dups.empty:
+        if flagged.empty and dups.empty:
             st.success("No repeated AWBs or data issues found.", icon="✅")
-        if len(issues):
-            st.markdown(f"**Left out – data issues ({len(issues):,})**")
-            st.caption("Something missing or not matching in the bill. These rows are not in the dashboard, "
-                       "data or totals. Fix the bill and upload it again to include them.")
-            st.dataframe(issues[ISSUE_COLS], width="stretch", hide_index=True, column_config=DATE_CFG)
-        if len(voided):
-            st.markdown(f"**Cancelled – VOID ({len(voided):,})**")
-            st.caption("The bill marks these AWBs as VOID (cancelled), so they are not counted anywhere.")
-            st.dataframe(voided[ISSUE_COLS], width="stretch", hide_index=True, column_config=DATE_CFG)
+        if len(all_issues):
+            st.markdown(f"**Data issues ({len(all_issues):,}) – {len(issues):,} left out**")
+            st.caption("Something missing or not matching in the bill, so these rows are left out of the dashboard, "
+                       "data and totals. Tick **Include** to count a row anyway (it keeps its DATA_ISSUE note), "
+                       "or fix the bill and upload it again.")
+            include_editor(all_issues, included, key, "issues")
+        if len(all_voided):
+            st.markdown(f"**Cancelled – VOID ({len(all_voided):,}) – {len(voided):,} left out**")
+            st.caption("The bill marks these AWBs as VOID (cancelled), so they are not counted. "
+                       "Tick **Include** to count one anyway.")
+            include_editor(all_voided, included, key, "void")
         if len(dups):
             st.markdown(f"**Repeated AWBs ({len(dups):,})**")
             st.caption("Same AWB on more than one row. These rows are kept in the totals.")
