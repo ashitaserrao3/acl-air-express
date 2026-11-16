@@ -124,6 +124,26 @@ def build():
         y -= 18
     c.save()
 
+    palm()
+
+
+def palm():
+    """PALM (PDF): Palm Express invoice, origin HYD, no flight column; row 3 has Wt x Rate != Total."""
+    c = canvas.Canvas(str(OUT / "PALM_FFN_Aug.pdf"), pagesize=A4)
+    y = 800
+    for line in [
+        "Palm Express Cargo Service", "TAX Invoice", "Invoice Date : Invoice #", "15.08.2026 C/021/26-27",
+        "SNo Date Cnsg No Sec Pcs Wt Rate Total Price",
+        "1 04.8.26 22301 MAA 1 15 50.00 750.00",
+        "2 12.08.26 22302 BOM 2 30 44.00 1320.00",
+        "3 14.8.26 22303 DEL 1 12 44.00 12.00",
+        "4 57",
+        "Subtotal 2,082.00",
+    ]:
+        c.drawString(30, y, line)
+        y -= 18
+    c.save()
+
 
 def pobc_location_wise():
     """POBC location-wise invoices: one sheet per file, no Srv column, FFN + SFN in one bill."""

@@ -10,7 +10,7 @@ from utils.page import process_agent_files  # noqa: E402
 
 SAMPLES = Path(__file__).parent / "samples"
 PREFIX = {"index": "INDEX", "pobc": "POBC", "pcf_south": "MAA-PCF", "pcfl_east": "CCU-PCFL",
-          "surya": "SURYA", "bhagwati": "BHAGWATI", "fdc": "FDC", "eds": "BOM-EDS"}
+          "surya": "SURYA", "bhagwati": "BHAGWATI", "fdc": "FDC", "eds": "BOM-EDS", "palm": "PALM"}
 
 
 class Upload:

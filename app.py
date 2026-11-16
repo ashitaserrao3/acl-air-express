@@ -16,7 +16,7 @@ _ROOT = Path(__file__).parent
 _REQUIRED = [
     "agents/__init__.py", "agents/index.py", "agents/pobc.py", "agents/pcf_common.py",
     "agents/pcf_south.py", "agents/pcfl_east.py", "agents/surya.py", "agents/bhagwati.py",
-    "agents/fdc.py", "agents/eds.py", "agents/multi_agent.py",
+    "agents/fdc.py", "agents/eds.py", "agents/palm.py", "agents/multi_agent.py",
     "utils/__init__.py", "utils/common.py", "utils/schema.py", "utils/page.py", "utils/dashboard.py",
     "utils/exporter.py", "utils/excel_utils.py", "utils/ui.py", "utils/activity_log.py",
 ]
@@ -30,7 +30,7 @@ if _missing:
     st.stop()
 
 try:
-    from agents import bhagwati, eds, fdc, index, multi_agent, pcf_south, pcfl_east, pobc, surya
+    from agents import bhagwati, eds, fdc, index, multi_agent, palm, pcf_south, pcfl_east, pobc, surya
     from utils.activity_log import attach_to_authenticator, heartbeat, log_agent_opened, on_logout
     from utils.page import run_agent_page
     from utils.ui import apply_css, login_footer, login_header, side_label, sidebar_brand, topbar
@@ -126,6 +126,7 @@ MENU = {
     "BHAGWATI": bhagwati,
     "FDC": fdc,
     "EDS": eds,
+    "PALM": palm,
 }
 ICONS = {"FDC": "🚚", "MULTI - AGENT": "🧩"}
 NAMES = {"MULTI - AGENT": "All agents (combined)"}
